@@ -1,13 +1,12 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour , IHitAble
 {
     [Header("controller")]
-    public bool stop;
-    public bool hit;
+    public bool stop = false;
+    public bool hit = false;
 
     [Header("Speed")]
     [Tooltip("increase speed value by time")]
@@ -27,11 +26,12 @@ public class PlayerController : MonoBehaviour , IHitAble
     public float currentSpeed{get;set;}
     private Rigidbody2D rb;
     private InputControl input;
+    private GameManager gameManager;
 
     bool ground() // check if it ground or not
     {
-        RaycastHit2D hit = Physics2D.Raycast(new Vector2(transform.position.x, transform.position.y - transform.localScale.y), Vector2.down, 0.1f, groundLayer);
-        isGrounded = hit.collider != null;
+        RaycastHit2D _hit = Physics2D.Raycast(new Vector2(transform.position.x, transform.position.y - transform.localScale.y), Vector2.down, 0.1f, groundLayer);
+        isGrounded = _hit.collider != null;
         return isGrounded;
     }
 
@@ -39,23 +39,29 @@ public class PlayerController : MonoBehaviour , IHitAble
     {
         rb = GetComponent<Rigidbody2D>();
         input = GetComponent<InputControl>();
+        gameManager = FindAnyObjectByType<GameManager>().GetComponent<GameManager>();
         currentSpeed = startSpeed;
     }
 
+
     private void FixedUpdate()
     {
+        if(hit) stop = true;
+        else stop = false;
+
         isGrounded = ground();// check if it ground or not
-        if(hit)
-            currentSpeed = startSpeed;
-        move();
+        if(gameManager.isStart)
+            move();
     }
 
     private void move()
     {
+
         // TODO add isStart in GameManager
-        if(currentSpeed < maxSpeed && !stop && !hit)
+        if(currentSpeed < maxSpeed && !stop && !hit || input.jump & isGrounded)
             currentSpeed += speedIncrease * Time.deltaTime; 
 
+        
         Debug.Log(currentSpeed);
         
         float speed; // run speed
@@ -84,12 +90,14 @@ public class PlayerController : MonoBehaviour , IHitAble
     public void _Hit()
     {
         hit = true;
-        StartCoroutine(takeDamege());
+        currentSpeed = startSpeed;
+        if(hit)
+            StartCoroutine(takeDamege());
     }
 
     IEnumerator takeDamege()
     {
-        yield return new WaitForSeconds(5f);
+        yield return new WaitForSeconds(1.5f);
         hit = false;
     }
 
