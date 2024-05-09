@@ -46,9 +46,6 @@ public class PlayerController : MonoBehaviour , IHitAble
 
     private void FixedUpdate()
     {
-        if(hit) stop = true;
-        else stop = false;
-
         isGrounded = ground();// check if it ground or not
         if(gameManager.isStart)
             move();
@@ -90,6 +87,7 @@ public class PlayerController : MonoBehaviour , IHitAble
     public void _Hit()
     {
         hit = true;
+        stop = true;
         currentSpeed = startSpeed;
         if(hit)
             StartCoroutine(takeDamege());
@@ -99,6 +97,7 @@ public class PlayerController : MonoBehaviour , IHitAble
     {
         yield return new WaitForSeconds(1.5f);
         hit = false;
+        stop = false;
     }
 
 }

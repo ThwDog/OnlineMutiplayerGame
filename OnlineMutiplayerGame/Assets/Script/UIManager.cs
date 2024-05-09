@@ -7,16 +7,26 @@ public class UIManager : MonoBehaviour
 {
     [Header("UI")]
     [SerializeField] TMP_Text speedText; // don't know if it gonna work online 
+    [SerializeField] TMP_Text timeText; // don't know if it gonna work online 
+    float time;
     
     private PlayerController player;
+    private GameManager gameManager;
   
     private void Start() 
     {
         player = FindAnyObjectByType<PlayerController>().GetComponent<PlayerController>();
+        gameManager = FindAnyObjectByType<GameManager>().GetComponent<GameManager>();
     }
 
     private void Update() 
     {
         speedText.text = "Speed : "+ Mathf.Round(player.currentSpeed).ToString();
+
+        if(gameManager.isStart)
+            time += Time.deltaTime;
+        
+        timeText.text = "Time : " + Mathf.Round(time).ToString();
+
     }
 }
