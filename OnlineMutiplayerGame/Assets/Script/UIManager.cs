@@ -20,13 +20,28 @@ public class UIManager : MonoBehaviour
     }
 
     private void Update() 
+
     {
-        speedText.text = "Speed : "+ Mathf.Round(player.currentSpeed).ToString();
-
-        if(gameManager.isStart)
-            time += Time.deltaTime;
+        if (!player)
+        {
+            //player = FindAnyObjectByType<PlayerController>().GetComponent<PlayerController>();
+        }
+        else
+        {
+            speedText.text = "Speed : " + Mathf.Round(player.currentSpeed).ToString();
+        }
         
-        timeText.text = "Time : " + Mathf.Round(time).ToString();
+        if(!gameManager)
+        {
+            gameManager = FindAnyObjectByType<GameManager>().GetComponent<GameManager>();
+        }
+        else
+        {
+            if (gameManager.isStart)
+                time += Time.deltaTime;
 
+            timeText.text = "Time : " + Mathf.Round(time).ToString();
+        }
+        
     }
 }

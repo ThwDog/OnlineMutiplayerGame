@@ -1,3 +1,4 @@
+using Cinemachine;
 using UnityEngine;
 
 public class ScreenBoundarie : MonoBehaviour
@@ -6,10 +7,14 @@ public class ScreenBoundarie : MonoBehaviour
     private Vector2 screenBounds;
     private float objectWidth;
     private float objectHeight;
+    public CinemachineVirtualCamera C_cam;
 
     // Use this for initialization
     void Start()
     {
+        MainCamera = Camera.main;
+        C_cam = GameObject.Find("Virtual Camera").GetComponent<CinemachineVirtualCamera>();
+        C_cam.Follow = this.gameObject.transform;
         objectWidth = transform.GetComponent<SpriteRenderer>().bounds.extents.x; //extents = size of width / 2
         objectHeight = transform.GetComponent<SpriteRenderer>().bounds.extents.y; //extents = size of height / 2
     }

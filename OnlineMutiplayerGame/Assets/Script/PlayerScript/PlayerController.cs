@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour , IHitAble
+public class PlayerController : MonoBehaviour, IHitAble
 {
     [Header("controller")]
     public bool stop = false;
@@ -16,17 +16,28 @@ public class PlayerController : MonoBehaviour , IHitAble
     [Tooltip("for set player start speed")]
     [SerializeField][Range(-100, 100)] float startSpeed = 500;
     [Tooltip("for set player min speed")]
-    [SerializeField][Range(-100, 100)]const float minSpeed = 0;
+    [SerializeField][Range(-100, 100)] const float minSpeed = 0;
 
     [Header("Jump")]
     [Tooltip("Layer of the Ground")]
     [SerializeField] LayerMask groundLayer;
     [SerializeField] bool isGrounded;//current ground
     [SerializeField] private float jumpForce;
-    public float currentSpeed{get;set;}
+
+    public float currentSpeed { get; set; }
     private Rigidbody2D rb;
     private InputControl input;
     private GameManager gameManager;
+
+    private Camera _mainCamera;
+
+    //private Animator animator;
+    //AudioManager audioManager;
+
+    /* private void Awake()
+     {
+         //audioManager = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioManager>();
+     }*/
 
     bool ground() // check if it ground or not
     {
@@ -37,30 +48,60 @@ public class PlayerController : MonoBehaviour , IHitAble
 
     private void Start()
     {
+        if (IsLocalPlayer())
+        {
+            _mainCamera = GetComponentInChildren<Camera>();
+            if (_mainCamera != null)
+            {
+                _mainCamera.gameObject.SetActive(true);
+            }
+        }
+        else
+        {
+            Camera cameraInChildren = GetComponentInChildren<Camera>();
+            if (cameraInChildren != null)
+            {
+                cameraInChildren.gameObject.SetActive(false);
+            }
+        }
+
         rb = GetComponent<Rigidbody2D>();
         input = GetComponent<InputControl>();
         gameManager = FindAnyObjectByType<GameManager>().GetComponent<GameManager>();
         currentSpeed = startSpeed;
+        // animator = GetComponent<Animator>();
+        if (IsLocalPlayer())
+        {
+            gameObject.tag = "LocalPlayer";
+        }
     }
 
 
     private void FixedUpdate()
     {
+        if (!IsLocalPlayer())
+        {
+            return;
+        }
+
         isGrounded = ground();// check if it ground or not
-        if(gameManager.isStart)
+        if (gameManager.isStart)
+        {
             move();
+        }
     }
 
     private void move()
     {
 
         // TODO add isStart in GameManager
-        if(currentSpeed < maxSpeed && !stop && !hit || input.jump & isGrounded)
-            currentSpeed += speedIncrease * Time.deltaTime; 
+        if (currentSpeed < maxSpeed && !stop && !hit || input.jump & isGrounded)
+            currentSpeed += speedIncrease * Time.deltaTime;
+        //animator.SetBool("IsRun", true);
 
-        
+
         Debug.Log(currentSpeed);
-        
+
         float speed; // run speed
         float _jumpF;// jump force
 
@@ -72,6 +113,8 @@ public class PlayerController : MonoBehaviour , IHitAble
                 speed = 0;
                 rb.constraints = RigidbodyConstraints2D.FreezePositionX;
                 rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+                //audioManager.PlaySFX(audioManager.jump);
+                //animator.SetBool("IsJump", true);
             }
             else
             {
@@ -79,8 +122,11 @@ public class PlayerController : MonoBehaviour , IHitAble
                 speed = currentSpeed;
                 rb.constraints = RigidbodyConstraints2D.None;
                 rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+                //animator.SetBool("IsJump", false);
+
             }
-            rb.AddForce(Vector2.up * _jumpF + Vector2.right * speed * Time.deltaTime,ForceMode2D.Impulse);
+            rb.AddForce(Vector2.up * _jumpF + Vector2.right * speed * Time.deltaTime, ForceMode2D.Impulse);
+
         }
     }
 
@@ -89,7 +135,7 @@ public class PlayerController : MonoBehaviour , IHitAble
         hit = true;
         stop = true;
         currentSpeed = startSpeed;
-        if(hit)
+        if (hit)
             StartCoroutine(takeDamege());
     }
 
@@ -100,4 +146,8 @@ public class PlayerController : MonoBehaviour , IHitAble
         stop = false;
     }
 
+    private bool IsLocalPlayer()
+    {
+        return true;
+    }
 }
