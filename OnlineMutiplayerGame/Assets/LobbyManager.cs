@@ -20,8 +20,8 @@ public class LobbyManager : MonoBehaviour
 
     float heartbeatTimer = 0;
 
-    Lobby hostLobby;
-    Lobby joinedLobby;
+    internal Lobby hostLobby;
+    internal Lobby joinedLobby;
 
     [SerializeField] LobbyUiManager lobbyUiManager;
 
@@ -150,6 +150,7 @@ public class LobbyManager : MonoBehaviour
 
     private void OnLobbyChanged(ILobbyChanges onChange)
     {
+        Debug.Log("Lobby Change");
         if (onChange.PlayerJoined.Value != null)
         {
             Debug.Log(onChange.PlayerJoined.Value[0].Player.Data["PlayerName"].Value);
@@ -162,12 +163,12 @@ public class LobbyManager : MonoBehaviour
             lobbyUiManager.PlayerLeaveRoom(hostLobby);
         }
 
-        // Debug.Log(onChange.Data.Changed);
-        // Debug.Log(onChange.Data.ChangeType);
-        // Debug.Log(onChange.Data.Value);
+        Debug.Log(onChange.Data.Changed);
+        Debug.Log(onChange.Data.ChangeType);
+        Debug.Log(onChange.Data.Value);
         if (onChange.Data.Changed == true)
         {
-            Debug.Log(onChange.Data.Value["IsStart"].Value.Value);
+            Debug.Log("Lobby Change" + onChange.Data.Value["IsStart"].Value.Value);
             StartGameClient(onChange.Data.Value["IsStart"].Value.Value);
         }
 
@@ -176,7 +177,7 @@ public class LobbyManager : MonoBehaviour
     private void StartGameClient(string joinCode)
     {
         lobbyUiManager.HideInRoomPanel();
-        SceneManager.LoadScene("SampleScene", LoadSceneMode.Additive);
+        SceneManager.LoadScene("SampleScene");
         SetClientRelayConnection(joinCode);
     }
 
@@ -186,6 +187,7 @@ public class LobbyManager : MonoBehaviour
         {
             JoinAllocation joinAllocation = await RelayService.Instance.JoinAllocationAsync(joinCode);
             RelayServerData relayData = new RelayServerData(joinAllocation, "wss");
+            Debug.Log("Join");
 
             NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(relayData);
             NetworkManager.Singleton.StartClient();

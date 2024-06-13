@@ -24,7 +24,7 @@ public class UIManager : MonoBehaviour
     {
         if (!player)
         {
-            //player = FindAnyObjectByType<PlayerController>().GetComponent<PlayerController>();
+            player = FindAnyObjectByType<PlayerController>().GetComponent<PlayerController>();
         }
         else
         {
